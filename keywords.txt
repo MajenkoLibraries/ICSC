@@ -1,0 +1,27 @@
+#######################################
+# Syntax Coloring Map ICSC
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+ICSC	KEYWORD1
+icsc_stats	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+begin	KEYWORD2
+send	KEYWORD2
+process	KEYWORD2
+registerCommand	KEYWORD2
+unregisterCommand	KEYWORD2
+stats	KEYWORD2
+broadcast KEYWORD2
+isBroadCast KEYWORD2
+isRelay KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
