@@ -8,5 +8,6 @@ Standards-Version: 3.9.4
 
 Package: libicsc
 Architecture: all
+Provides: ICSC.h
 Description: ICSC library
 
