@@ -1,27 +1,30 @@
 #include <ICSC.h>
 
+ICSC icsc(Serial, 2);
+
 void setup()
 {
-  ICSC.begin(2, 115200);
-  ICSC.registerCommand('P', &pressed);
-  ICSC.registerCommand('R', &released);
-  pinMode(13, OUTPUT);
-  digitalWrite(13, LOW);
+    Serial.begin(115200);
+    icsc.begin();
+    icsc.registerCommand('P', &pressed);
+    icsc.registerCommand('R', &released);
+    pinMode(13, OUTPUT);
+    digitalWrite(13, LOW);
 }
 
 void loop()
 {
-  ICSC.process();
+    icsc.process();
 }
 
 void pressed(unsigned char src, char command, unsigned char len, char *data)
 {
-  digitalWrite(13, HIGH);
+    digitalWrite(13, HIGH);
 }
 
 void released(unsigned char src, char command, unsigned char len, char *data)
 {
-  digitalWrite(13, LOW);
+    digitalWrite(13, LOW);
 }
 
 

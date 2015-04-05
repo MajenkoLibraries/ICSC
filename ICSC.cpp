@@ -35,19 +35,8 @@
 
 #include <ICSC.h>
 
-//Constructor of the class
-_ICSC::_ICSC(){
-
- #ifdef ICSC_DYNAMIC
-    _commandCount=0;
-    _commands=NULL;
-    _data=NULL;
- #endif
-
-}
-
 //Destructor of the class
-_ICSC::~_ICSC(){
+ICSC::~ICSC(){
  #ifdef ICSC_DYNAMIC
    free(_data);
    free(_commands);
@@ -56,36 +45,8 @@ _ICSC::~_ICSC(){
 
 // Initialize the system.  Set up the serial port to the right baud rate
 // and initialize my variables.
-void _ICSC::begin(unsigned char station, unsigned long baud)
+void ICSC::begin()
 {
-    begin(station, baud, &Serial, -1);
-}
-
-void _ICSC::begin(unsigned char station, unsigned long baud, int dePin)
-{
-    begin(station, baud, &Serial, dePin);
-}
-
-void _ICSC::begin(unsigned char station, unsigned long baud, HardwareSerial *sdev)
-{
-    begin(station, baud, sdev, -1);
-}
-
-#if defined(_USE_USB_FOR_SERIAL_)
-void _ICSC::begin(unsigned char station, unsigned long baud, USBSerial *sdev)
-{
-    begin(station, baud, sdev, -1);
-}
-
-void _ICSC::begin(unsigned char station, unsigned long baud, USBSerial *sdev, int dePin)
-{
-    _hserial = NULL;
-    _userial = sdev;
-    _userial->begin(baud);
-    _station = station;
-    _dePin = dePin;
-    _baud = baud;
-
 #ifndef ICSC_NO_STATS
     _stats.oob_bytes = 0;
     _stats.tx_packets = 0;
@@ -104,82 +65,6 @@ void _ICSC::begin(unsigned char station, unsigned long baud, USBSerial *sdev, in
         pinMode(_dePin, OUTPUT);
         digitalWrite(_dePin, LOW);
     }
-}
-#endif
-
-void _ICSC::begin(unsigned char station, unsigned long baud, HardwareSerial *sdev, int dePin)
-{
-    _userial = NULL;
-    _hserial = sdev;
-    _hserial->begin(baud);
-    _station = station;
-    _dePin = dePin;
-    _baud = baud;
-
-#ifndef ICSC_NO_STATS
-    _stats.oob_bytes = 0;
-    _stats.tx_packets = 0;
-    _stats.tx_bytes = 0;
-    _stats.rx_packets = 0;
-    _stats.rx_bytes = 0;
-    _stats.cs_errors = 0;
-    _stats.cb_run = 0;
-    _stats.cb_bad = 0;
-#endif
-
-    // Reset the state machine
-    reset();
-
-    if (_dePin != -1) {
-        pinMode(_dePin, OUTPUT);
-        digitalWrite(_dePin, LOW);
-    }
-}
-
-void _ICSC::serialFlush()
-{
-    if (_hserial) {
-        _hserial->flush();
-    }
-}
-
-void _ICSC::serialWrite(unsigned char b) 
-{
-    if (_hserial) {
-        _hserial->write(b);
-    }
-
-#if defined(_USE_USB_FOR_SERIAL_)
-    if (_userial) {
-        _userial->write(b);
-    }
-#endif
-}
-
-int _ICSC::serialRead()
-{
-    if (_hserial) {
-        return _hserial->read();
-    }
-
-#if defined(_USE_USB_FOR_SERIAL_)
-    if (_userial) {
-        return _userial->read();
-    }
-#endif
-}
-
-int _ICSC::serialAvailable()
-{
-    if (_hserial) {
-        return _hserial->available();
-    }
-
-#if defined(_USE_USB_FOR_SERIAL_)
-    if (_userial) {
-        return _userial->available();
-    }
-#endif
 }
 
 // Send a message to a remote station. Origin is the originating station
@@ -192,7 +77,7 @@ int _ICSC::serialAvailable()
 // The checksum is calculated as the sum of all the variable content of the packet
 // modulus 256.  I.e., everything except the framing characters SOH/STX/ETX/EOT and
 // the checksum itself.
-boolean _ICSC::send(unsigned char origin,unsigned char station, char command, unsigned char len, char *data)
+boolean ICSC::send(unsigned char origin,unsigned char station, char command, unsigned char len, char *data)
 {
     unsigned char i;
     unsigned char cs = 0;
@@ -227,23 +112,23 @@ boolean _ICSC::send(unsigned char origin,unsigned char station, char command, un
 
     assertDE();
      // Start of header by writing multiple SOH
-    for(byte w=0;w<ICSC_SOH_START_COUNT;w++)  serialWrite(SOH);
-    serialWrite(station);  // Destination address
+    for(byte w=0;w<ICSC_SOH_START_COUNT;w++)  _dev->write(SOH);
+    _dev->write(station);  // Destination address
     cs += station;
-    serialWrite(origin); // Source address
+    _dev->write(origin); // Source address
     cs += _station;
-    serialWrite(command);  // Command code
+    _dev->write(command);  // Command code
     cs += command;
-    serialWrite(len);      // Length of text
+    _dev->write(len);      // Length of text
     cs += len;
-    serialWrite(STX);      // Start of text
+    _dev->write(STX);      // Start of text
     for(i=0; i<len; i++) {
-        serialWrite(data[i]);      // Text bytes
+        _dev->write(data[i]);      // Text bytes
         cs += data[i];
     }
-    serialWrite(ETX);      // End of text
-    serialWrite(cs);
-    serialWrite(EOT);
+    _dev->write(ETX);      // End of text
+    _dev->write(cs);
+    _dev->write(EOT);
     waitForTransmitToComplete();
     deassertDE();
 #ifndef ICSC_NO_STATS
@@ -254,67 +139,67 @@ boolean _ICSC::send(unsigned char origin,unsigned char station, char command, un
 }
 
 //Mostly used send, we use our internal station as origin
-boolean _ICSC::send(unsigned char station, char command, unsigned char len, char *data)
+boolean ICSC::send(unsigned char station, char command, unsigned char len, char *data)
 {
   return send(_station,station,command,len,data);
 }
 
 // Send a string of data to a remote station.
-boolean _ICSC::send(unsigned char station, char command,char *str)
+boolean ICSC::send(unsigned char station, char command,char *str)
 {
   return send(station,command,(unsigned char)strlen(str),str);
 }
 
 //Wrapper to send a long
-boolean _ICSC::send(unsigned char station, char command, long data)
+boolean ICSC::send(unsigned char station, char command, long data)
 {
   return send(station,command,sizeof(data),(char *)&data);
 }
 
 //Wrapper to send a int
-boolean _ICSC::send(unsigned char station, char command, int data)
+boolean ICSC::send(unsigned char station, char command, int data)
 {
   return send(station,command,sizeof(data),(char *)&data);
 }
 
 //Wrapper to send a char
-boolean _ICSC::send(unsigned char station, char command, char data)
+boolean ICSC::send(unsigned char station, char command, char data)
 {
   return send(station,command,sizeof(data),(char *)&data);
 }
 
 //Broadcast data to all stations
-boolean _ICSC::broadcast(char command, unsigned char len, char *data)
+boolean ICSC::broadcast(char command, unsigned char len, char *data)
 {
   return send(ICSC_BROADCAST,command,len,data);
 }
 
 //BroadCast a string to all Stations
-boolean _ICSC::broadcast(char command, char *str)
+boolean ICSC::broadcast(char command, char *str)
 {
   return send(ICSC_BROADCAST,command,(unsigned char)strlen(str),str);
 }
 
 //Wrapper for broadcasting a long
-boolean _ICSC::broadcast(char command, long data)
+boolean ICSC::broadcast(char command, long data)
 {
   return send(ICSC_BROADCAST,command,sizeof(data),(char *)&data);
 }
 
 //Wrapper for broadcasting a int
-boolean _ICSC::broadcast(char command, int data)
+boolean ICSC::broadcast(char command, int data)
 {
   return send(ICSC_BROADCAST,command,sizeof(data),(char *)&data);
 }
 
 //Wrapper for broadcasting a single char
-boolean _ICSC::broadcast(char command, char data)
+boolean ICSC::broadcast(char command, char data)
 {
   return send(ICSC_BROADCAST,command,sizeof(data),(char *)&data);
 }
 
 //Reset the state machine and release the data pointer
-void _ICSC::reset(){
+void ICSC::reset(){
   _recPhase = 0;
   _recPos = 0;
   _recLen = 0;
@@ -334,15 +219,15 @@ void _ICSC::reset(){
 // our station ID, then look for a registered command that matches the
 // command code.  If all the above is true, execute the command's
 // function.
-boolean _ICSC::process()
+boolean ICSC::process()
 {
     char inch;
     unsigned char i;
     unsigned char cbok = 0;
-    if (!serialAvailable()) return false;
+    if (!_dev->available()) return false;
 
-    while(serialAvailable()) {
-        inch = serialRead();
+    while(_dev->available()) {
+        inch = _dev->read();
 
         // Record the timestamp of this byte, so that we know how long since we last
         // saw any activity on the line
@@ -498,7 +383,7 @@ boolean _ICSC::process()
 
 // Add a new command code / function pair into the list of
 // registered commands.  If there is no room, fail silently.
-void _ICSC::registerCommand(char command, callbackFunction func)
+void ICSC::registerCommand(char command, callbackFunction func)
 {
     unsigned char i;
 
@@ -533,7 +418,7 @@ void _ICSC::registerCommand(char command, callbackFunction func)
 
 // Look for a registered command and delete it from the
 // list if found.  If not found, silently fail.
-void _ICSC::unregisterCommand(char command)
+void ICSC::unregisterCommand(char command)
 {
     unsigned char i;
 
@@ -565,7 +450,7 @@ void _ICSC::unregisterCommand(char command)
 // of the different core code from the different chips provides
 // different facilities for knowing if the transmission has
 // completed.
-void _ICSC::waitForTransmitToComplete()
+void ICSC::waitForTransmitToComplete()
 {
   if (_dePin == -1)  //Skip flush
     return;
@@ -574,17 +459,17 @@ void _ICSC::waitForTransmitToComplete()
     // MPIDE has nothing yet for this.  It uses the hardware buffer, which
     // could be up to 8 levels deep.  For now, let's just delay for 8
     // characters worth.
-    delayMicroseconds((80000000UL/_baud)+1);
+    delayMicroseconds((F_CPU/9600)+1);
 #else
 #if defined(ARDUINO) && ARDUINO >= 100
 #if ARDUINO >= 104
     // Arduino 1.0.4 and upwards does it right
-    serialFlush();
+    _dev->flush();
 #else
     // Between 1.0.0 and 1.0.3 it almost does it - need to compensate
     // for the hardware buffer. Delay for 2 bytes worth of transmission.
-    serialFlush();
-    delayMicroseconds((20000000UL/_baud)+1);
+    _dev->flush();
+    delayMicroseconds((20000000UL/9600)+1);
 #endif
 #endif
 #endif
@@ -594,7 +479,7 @@ void _ICSC::waitForTransmitToComplete()
 // Control the DE line, if a DEPin has been specified.  This will
 // always put the DEPin into output mode in case something else has
 // tampered with the pin setting in the mean time.
-void _ICSC::assertDE()
+void ICSC::assertDE()
 {
     if (_dePin != -1) {
         digitalWrite(_dePin, HIGH);
@@ -602,7 +487,7 @@ void _ICSC::assertDE()
     }
 }
 
-void _ICSC::deassertDE()
+void ICSC::deassertDE()
 {
     if (_dePin != -1) {
         digitalWrite(_dePin, LOW);
@@ -611,7 +496,7 @@ void _ICSC::deassertDE()
 
 // Statistics.  Just return a pointer to the internal stats structure.
 #ifndef ICSC_NO_STATS
-stats_ptr _ICSC::stats()
+stats_ptr ICSC::stats()
 {
     return &_stats;
 }
@@ -620,14 +505,14 @@ stats_ptr _ICSC::stats()
 // System level command responders
 
 // Respond to a PING packet with a PONG packet.  Send back whatever data was received.
-void _ICSC::respondToPing(unsigned char station, char command, unsigned char len, char *data)
+void ICSC::respondToPing(unsigned char station, char command, unsigned char len, char *data)
 {
     send(station, ICSC_SYS_PONG, len, data);
 }
 
 // Stat query request - respond with the current stats structure
 #ifndef ICSC_NO_STATS
-void _ICSC::respondToQSTAT(unsigned char station, char command, unsigned char len, char *data)
+void ICSC::respondToQSTAT(unsigned char station, char command, unsigned char len, char *data)
 {
     send(station, ICSC_SYS_RSTAT, sizeof(stats_t), (char *)&_stats);
 }
@@ -635,7 +520,7 @@ void _ICSC::respondToQSTAT(unsigned char station, char command, unsigned char le
 
 //function which can be used to validate during a callback
 //that the message comes from a BroadCast function
-boolean _ICSC::isBroadCast()
+boolean ICSC::isBroadCast()
 {
   return _recStation==ICSC_BROADCAST;
 }
@@ -643,11 +528,8 @@ boolean _ICSC::isBroadCast()
 
 //A function which can be used to validate during a callback
 //that the message comes from a relay function
-boolean _ICSC::isRelay()
+boolean ICSC::isRelay()
 {
   return _recStation==ICSC_SYS_RELAY;
 }
-// Global object for interraction
-_ICSC ICSC;
-
 

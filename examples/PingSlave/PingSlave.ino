@@ -1,13 +1,16 @@
 #include <ICSC.h>
 
+ICSC icsc(Serial, 2);
+
 void setup()
 {
-  ICSC.begin(2, 115200);
+    Serial.begin(115200);
+    icsc.begin();
 }
 
 void loop()
 {
-  ICSC.process();
+    icsc.process();
 }
 
 

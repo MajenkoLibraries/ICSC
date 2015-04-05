@@ -55,7 +55,7 @@
 // size of packets that can be received - you can always send
 // up to 255 bytes.  If the remote end can't receive them all
 // the packet will be silently discarded.
-#define MAX_MESSAGE 25
+#define MAX_MESSAGE 250
 
 // The maximum number of registered commands.  If you're not
 // going to have many commands reducing this can save memory.
@@ -115,7 +115,7 @@ typedef struct {
 } stats_t, *stats_ptr;
 #endif
 
-class _ICSC {
+class ICSC {
     private:
       #ifdef ICSC_DYNAMIC
 
@@ -155,18 +155,13 @@ class _ICSC {
         // fsm.  Used to help avoid colisions.
         unsigned long _lastByteSeen;
 
-        // My station ID
-        unsigned char _station;
 
         // Serial device in use
-        HardwareSerial *_hserial;
-#if defined(_USE_USB_FOR_SERIAL_)
-        USBSerial *_userial;
-#else
-        void *_userial;
-#endif
+        Stream *_dev;
+        // My station ID
+        unsigned char _station;
+        // Pin to use for transmit enable
         int _dePin;
-        unsigned long _baud;
 
      #ifndef ICSC_NO_STATS
         // Statistics gathering
@@ -185,16 +180,14 @@ class _ICSC {
       #endif
 
     public:
-        _ICSC();
-        ~_ICSC();
-        void begin(unsigned char station, unsigned long baud=9600);
-        void begin(unsigned char station, unsigned long baud, int dePin);
-#if defined(_USE_USB_FOR_SERIAL_)
-        void begin(unsigned char station, unsigned long baud, USBSerial *sdev);
-        void begin(unsigned char station, unsigned long baud, USBSerial *sdev, int dePin);
-#endif
-        void begin(unsigned char station, unsigned long baud, HardwareSerial *sdev);
-        void begin(unsigned char station, unsigned long baud, HardwareSerial *sdev, int dePin);
+        ICSC(Stream *d, uint8_t station) : _dev(d), _station(station), _dePin(255) {}
+        ICSC(Stream &d, uint8_t station) : _dev(&d), _station(station), _dePin(255) {}
+        ICSC(Stream *d, uint8_t station, int depin) : _dev(d), _station(station), _dePin(depin) {}
+        ICSC(Stream &d, uint8_t station, int depin) : _dev(&d), _station(station), _dePin(depin) {}
+        ~ICSC();
+
+        void begin();
+
         boolean send(unsigned char origin,unsigned char station, char command, unsigned char len=0, char *data=NULL);
         boolean send(unsigned char station, char command, unsigned char len=0, char *data=NULL);
         boolean send(unsigned char station, char command,char *str);
@@ -215,12 +208,6 @@ class _ICSC {
         boolean isBroadCast();
         boolean isRelay();
 
-    private:
-        void serialWrite(unsigned char b);
-        int serialRead();
-        int serialAvailable();
-        void serialFlush();
-
 };
 
 // Packet wrapping characters, defined in standard ASCII table
@@ -228,8 +215,5 @@ class _ICSC {
 #define STX 2
 #define ETX 3
 #define EOT 4
-
-// Global object for interacting with the class
-extern _ICSC ICSC;
 
 #endif
