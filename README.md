@@ -72,3 +72,9 @@ or the ID of the receiving station, it is assumed a valid packet is arriving.
 From this point on DatLen bytes are then read into the data buffer.
 If the next three bytes do not equal ETX, the valid checksum, and EOT, then the
 packet is rejected.  Otherwise the function associated with Command is executed.
+
+ChainDuino Use
+----------------
+
+See example file RemoteLEDReciever and RemoteLEDSender for small change that makes this work with ChainDuinos http://largewire.com/
+
