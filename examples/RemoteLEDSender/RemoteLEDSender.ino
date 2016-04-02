@@ -2,6 +2,9 @@
 
 ICSC icsc(Serial, 1);
 
+//comment out the line above and uncomment the line below to use this with ChainDuinos
+//ICSC icsc(Serial, 1 ,2); // last argument specifies DE pin on ChainDuino
+
 void setup()
 {
     Serial.begin(115200);

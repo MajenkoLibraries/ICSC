@@ -1,6 +1,8 @@
 #include <ICSC.h>
 
 ICSC icsc(Serial, 2);
+//comment out the line above and uncomment the line below to use this with ChainDuinos
+//ICSC icsc(Serial, 2 ,2); // last argument specifies DE pin on ChainDuino
 
 void setup()
 {
