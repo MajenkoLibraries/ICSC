@@ -54,7 +54,7 @@ Packet:
     | EOT    |
     +--------+
 
-Checksum is sum of all bytes between (but not including) SOH and ETX, modulus 256.
+Checksum is sum of all bytes between (but not including) SOH, STX, ETX and EOT, modulus 256.
     
 Special destination address 0x00 is the broadcast. All stations will receive and
 act upon messages sent to this address.
