@@ -455,12 +455,6 @@ void ICSC::waitForTransmitToComplete()
   if (_dePin == -1)  //Skip flush
     return;
 
-#ifdef __PIC32MX__
-    // MPIDE has nothing yet for this.  It uses the hardware buffer, which
-    // could be up to 8 levels deep.  For now, let's just delay for 8
-    // characters worth.
-    delayMicroseconds((F_CPU/9600)+1);
-#else
 #if defined(ARDUINO) && ARDUINO >= 100
 #if ARDUINO >= 104
     // Arduino 1.0.4 and upwards does it right
@@ -470,7 +464,6 @@ void ICSC::waitForTransmitToComplete()
     // for the hardware buffer. Delay for 2 bytes worth of transmission.
     _dev->flush();
     delayMicroseconds((20000000UL/9600)+1);
-#endif
 #endif
 #endif
 }
