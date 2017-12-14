@@ -20,7 +20,7 @@ ICSC(Stream *d, uint8_t station, int depin);
 ICSC(Stream &d, uint8_t station, int depin);
 ```
 
-The `Stream` is the device you wish to communicate over. `station` is the number (or single letter code) of this station, and `depin` is, if provided, the DE/RE pin pair of a MAX485 chip or similar.
+The `Stream` is the device you wish to communicate over. `station` is the number (or single letter code) of this station, and `depin` is, if provided, the DE/RE pin pair of a MAX485 chip or similar.  The stream device you choose must be manually configured before starting ICSC:
 
 Example:
 
@@ -31,6 +31,7 @@ ICSC icsc(Serial, 'A', 3);
 
 void setup()
 {
+  Serial.begin(9600);
   icsc.begin();
 }
 ```
@@ -47,7 +48,10 @@ Register a new command to be acted upon. Calls the function commandCallback when
 Example:
 
 ```C++
-icsc.registerCommand('T', &tick);
+void setup() {
+  // init code here
+  icsc.registerCommand('T', &tick);
+}
 
 void tick(unsigned char source, char command, unsigned char length, char *data)
 {
