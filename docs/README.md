@@ -78,10 +78,23 @@ Send a packet
 -------------
 
 ```C++
-ICSC::send(destination, commandID, length, data);
+ICSC::send(unsigned char station, char command, unsigned char len=0, char *data=NULL);
+ICSC::send(unsigned char station, char command, char *str);
+ICSC::send(unsigned char station, char command, long data);
+ICSC::send(unsigned char station, char command, int data);
+ICSC::send(unsigned char station, char command, char data);
+
 ```
 
-Send a packet to a remote station. The commandID should match a command registered in the remote station. Length is the number of bytes of data to include in the packet. Data is a pointer to the data to send (should be cast to a char * if it isn't already).
+Send a packet to a remote station. The commandID should match a command registered in the remote station. 
+
+The different overloaded methods provide, in turn:
+
+* Sending of a raw data packet of length `len`.
+* Sending a NULL-terminated C string.
+* Sending a `long` value (32 bits).
+* Sending an `int` value (**Caution: the size of this depends on the architecture. It may be 16 or 32 bits.**).
+* Sending a single char value (8 bit signed value).
 
 Example:
 
@@ -93,10 +106,17 @@ Send a broadcast
 ----------------
 
 ```C++
-ICSC::broadcast(command, length, data);
+ICSC::broadcast(char command, unsigned char len=0, char *data=NULL);
+ICSC::broadcast(char command, char *str);
+ICSC::broadcast(char command, long data);
+ICSC::broadcast(char command, int data);
+ICSC::broadcast(char command, char data);
 ```
 
-Send a packet to all stations. The default address for broadcasting is 0 (can be edited in the ICSC.h file). Apart from that broadcast() works like send().
+This is the same as the `send` method above, except the data is sent to all
+stations on the network.  Care should be taken to ensure that the destination
+stations do not respond to a broadcast message since that would cause collisions
+on the network.
 
 Example:
 
