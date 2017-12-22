@@ -1,6 +1,6 @@
 #include <ICSC.h>
 
-ICSC icsc(Serial, 2);
+ICSC icsc(Serial, 'B');
 
 void setup()
 {

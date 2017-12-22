@@ -1,6 +1,6 @@
 #include <ICSC.h>
 
-ICSC icsc(Serial, 1);
+ICSC icsc(Serial, 'A');
 
 void pinger(unsigned char station, char command, unsigned char len, char *data)
 {
@@ -24,7 +24,7 @@ void loop()
   
     if (millis() - ts >= 1000) {
         ts = millis();
-        icsc.send(2, ICSC_SYS_PING, 5, "PING");
+        icsc.send('B', ICSC_SYS_PING, 5, "PING");
     }
     icsc.process();
 }

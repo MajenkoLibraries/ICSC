@@ -1,9 +1,9 @@
 #include <ICSC.h>
 
-ICSC icsc(Serial, 1);
+ICSC icsc(Serial, 'A');
 
 //comment out the line above and uncomment the line below to use this with ChainDuinos
-//ICSC icsc(Serial, 1 ,2); // last argument specifies DE pin on ChainDuino
+//ICSC icsc(Serial, 'A' ,2); // last argument specifies DE pin on ChainDuino
 
 void setup()
 {
@@ -20,9 +20,9 @@ void loop()
         lastPress = digitalRead(2);
     
         if (lastPress == LOW) {
-            icsc.send(2, 'P', 0, NULL);
+            icsc.send('B', 'P', 0, NULL);
         } else {
-            icsc.send(2, 'R', 0, NULL);
+            icsc.send('B', 'R', 0, NULL);
         }
     }
 }
