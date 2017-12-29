@@ -18,9 +18,9 @@ process	KEYWORD2
 registerCommand	KEYWORD2
 unregisterCommand	KEYWORD2
 stats	KEYWORD2
-broadcast KEYWORD2
-isBroadCast KEYWORD2
-isRelay KEYWORD2
+broadcast	KEYWORD2
+isBroadCast	KEYWORD2
+isRelay	KEYWORD2
 
 #######################################
 # Constants (LITERAL1)
