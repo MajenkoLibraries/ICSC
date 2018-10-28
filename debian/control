@@ -1,8 +1,9 @@
 Source: libicsc
-Section: libraries
+Section: main
 Priority: extra
-XBSC-Group: Communications
-XBSC-Subgroup: Protocols
+XBSC-Group: Libraries
+XBSC-Subgroup: Communications
+XBSC-Subsubgroup: Protocols
 Maintainer: Matt Jenkins <matt@majenko.co.uk>
 Build-Depends: debhelper (>= 8.0.0)
 Standards-Version: 3.9.4
