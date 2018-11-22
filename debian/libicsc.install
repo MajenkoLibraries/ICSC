@@ -1,9 +1,0 @@
-ICSC.cpp libraries/Communications/ICSC/
-ICSC.h libraries/Communications/ICSC/
-LICENSE usr/share/doc/libicsc/
-README.md usr/share/doc/libicsc/
-examples/RemoteLEDReceiver/RemoteLEDReceiver.ino libraries/Communications/ICSC/examples/RemoteLEDReceiver
-examples/PingMaster/PingMaster.ino libraries/Communications/ICSC/examples/PingMaster
-examples/PingSlave/PingSlave.ino libraries/Communications/ICSC/examples/PingSlave
-examples/RemoteLEDSender/RemoteLEDSender.ino libraries/Communications/ICSC/examples/RemoteLEDSender
-keywords.txt libraries/Communications/ICSC/
