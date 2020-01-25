@@ -208,6 +208,8 @@ class ICSC {
         boolean isBroadCast();
         boolean isRelay();
 
+        void setStation(uint8_t station);
+
 };
 
 // Packet wrapping characters, defined in standard ASCII table

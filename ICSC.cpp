@@ -526,3 +526,7 @@ boolean ICSC::isRelay()
   return _recStation==ICSC_SYS_RELAY;
 }
 
+// Allows you to change the local station ID
+void ICSC::setStation(uint8_t station) {
+    _station = station;
+}
